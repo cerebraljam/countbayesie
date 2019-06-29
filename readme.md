@@ -156,11 +156,11 @@ Where
 
 
 ```python
-ph = 100
+ph = 3
 pnh = 1
 
-d = 1
-h = 3
+d = 30
+h = 1
 
 b0, var, skew, kurt = beta.stats(ph, pnh, moments='mvsk')
 print("b0 (prior that the coffee will be good): {}".format(b0)) # b0 = ln(p(h)/p(!h))
@@ -175,9 +175,9 @@ print("Probability of the Hypothesis given the data")
 print("P(H|D) = {}".format((1/(1+math.exp(-(lo))))))
 ```
 
-    b0 (prior that the coffee will be good): 0.9900990099009901
-    bD (probability of the data given the hypothesis): 0.25
-    lo(H|D) = bD + b0 = 0.25
+    b0 (prior that the coffee will be good): 0.75
+    bD (probability of the data given the hypothesis): 0.967741935483871
+    lo(H|D) = bD + b0 = 0.967741935483871
     Probability of the Hypothesis given the data
-    P(H|D) = 0.9815763812255458
+    P(H|D) = 0.9914139600794254
 
