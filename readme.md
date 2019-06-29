@@ -67,6 +67,8 @@ print("Probability of having between {} and {} tails (inclusive) is {:0.3f}".for
     Probability of having between 18 and 25 tails (inclusive) is 0.181
 
 
+# Beta
+
 $Beta$($\alpha$,$\beta$) = $\frac{x^{\alpha - 1}(1-x)^{\beta -1}}{B(\alpha ,\beta)}$
 
 
@@ -88,8 +90,12 @@ plt.plot(x, beta.pdf(x, a, b),
 
 
 
-    [<matplotlib.lines.Line2D at 0x111f9c4e0>]
+    [<matplotlib.lines.Line2D at 0x10eaa0630>]
 
+
+
+
+![png](discrete_drobability_distributions_files/discrete_drobability_distributions_5_2.png)
 
 
 ## "What is the probability that ppp is between 0.2 and 0.5?"
@@ -99,6 +105,79 @@ plt.plot(x, beta.pdf(x, a, b),
 minimum = 0.2
 maximum = 0.5
 
-ii = integrate.quad(lambda x: beta.pdf(x, a, b), minimum, maximum)
+ii = integrate.quad(beta.pdf, minimum, maximum, args=((a, b)))
+
 print("What is the probability that p is between {} and {}?: {:0.3f}".format(minimum, maximum, ii[0]))
 ```
+
+    What is the probability that p is between 0.2 and 0.5?: 0.912
+
+
+# Logistic Regression from Bayes' Theorem
+
+Reference: https://www.countbayesie.com/blog/2019/6/12/logistic-regression-from-bayes-theorem
+
+Calculate the odds between two hypothesis
+
+O(H|D) = $\frac{P(D|H)}{P(D|\bar{H})}O(H)$
+
+But this is not good to fit into a linear equation:
+
+y = $\beta x+ \beta_0$
+
+
+For this, we can use the Log function
+
+$ln(O(H|D))$ = $ln(\frac{P(D|H)}{P(D|\bar{H})}O(H))$ = $ln(\frac{P(D|H)}{P(D|\bar{H})}) + ln(O(H))$
+
+What we need is really just that:
+
+$\beta_0 = ln(O(H))$
+
+Or that $\beta_0$ is the log of the prior odds. 
+
+To make it fit with what we need:
+
+$lo(H|D) = \beta D + \beta_0$
+
+but because 1/0 is undefined, and ln(0) is also undefined, we need to modify the equation to handle these values on the right side
+
+$P(H|D) = \frac{1}{1+e^{-(\beta D + \beta_0)}}$
+
+Where 
+
+* $\beta D$ is $ln(\frac{P(D|H)}{P(D|\bar{H})})$ 
+
+* Our prior odds, $\beta_0$ is $ln(O(H))$, or $ln(\frac{P(H)}{P(\bar{H})})$
+
+
+
+\frac{P(H|D)}{P(\bar{H}|D)} = \frac{P(D|H)P(H)}{P(D|\bar{H})P(\bar{H})}
+
+
+```python
+ph = 100
+pnh = 1
+
+d = 1
+h = 3
+
+b0, var, skew, kurt = beta.stats(ph, pnh, moments='mvsk')
+print("b0 (prior that the coffee will be good): {}".format(b0)) # b0 = ln(p(h)/p(!h))
+
+bD, var, skew, kurt = beta.stats(d, h, moments='mvsk')
+print("bD (probability of the data given the hypothesis): {}".format(bD))
+
+lo = math.exp(bD) + math.exp(b0)
+print("lo(H|D) = bD + b0 = {}".format(bD, b0, lo))
+
+print("Probability of the Hypothesis given the data")
+print("P(H|D) = {}".format((1/(1+math.exp(-(lo))))))
+```
+
+    b0 (prior that the coffee will be good): 0.9900990099009901
+    bD (probability of the data given the hypothesis): 0.25
+    lo(H|D) = bD + b0 = 0.25
+    Probability of the Hypothesis given the data
+    P(H|D) = 0.9815763812255458
+
